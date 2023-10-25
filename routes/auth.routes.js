@@ -1,0 +1,38 @@
+const User = require('models/User.model')
+const bcrypt = require('bcryptjs')
+
+const router = require('express').Router()
+
+router.get('/', (req, res, next) => {
+    res.json('All good in auth')
+})
+
+//POST TO SIGNUP
+router.post('/signup', async (req, res) => {
+    const salt = bcrypt.genSaltSync(13)
+    const passwordHash = bcrypt.hashSync(req.body.password, salt)
+    try {    
+   const newUser = await User.create({...req.body, passwordHash})
+   res.status(201).json(newUser)
+   } catch (error) {
+    console.log(error)
+    res.status(400).json(error)
+  } 
+})
+
+//POST TO LOGIN
+router.post('/login', async (req, res) => {
+    const { username, password } = req.body
+    const potentialUser = await User.findOne({ username })
+    if(potentialUser){
+        if (bcrypt.compareSync(password, potentialUser.passwordHash)) {
+            res.status(200).json({ message: "Good password" })
+        } else {
+            res.status(400).json({ message: "Bad password" })
+        }
+    } else {
+        res.status(400).json({ message: "User doesn't exist" })
+    }
+})
+
+module.exports = router
