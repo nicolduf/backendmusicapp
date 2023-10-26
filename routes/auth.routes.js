@@ -27,9 +27,6 @@ router.post('/login', async (req, res) => {
     const potentialUser = await User.findOne({ username })
     if(potentialUser) {
         if (bcrypt.compareSync(password, potentialUser.passwordHash)) {
-            //good
-            // const userCopy = JSON.parse(JSON.stringify(potentialUser))
-            // delete userCopy.passwordHash
             
             const authToken = jwt.sign({ userId: potentialUser._id }, process.env.TOKEN_SECRET, { 
                 algorithm: 'HS256', 
@@ -38,11 +35,9 @@ router.post('/login', async (req, res) => {
 
             res.status(200).json({ token: authToken })
         } else {
-            //bad
             res.status(400).json({ message: "Bad password" })
         }
     } else {
-        //no user
         res.status(400).json({ message: "User doesn't exist" })
     }
 })
