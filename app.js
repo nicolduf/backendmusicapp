@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const app = express();
 const PORT = 5005;
 
 mongoose
@@ -11,6 +10,11 @@ mongoose
 const User = require("./models/User.model");
 const Song = require("./models/Song.model");
 const Artist = require("./models/Artist.model");
+
+const users = require("./db/users.json");
+const songs = require("./db/songs.json");
+
+const app = express();
 
 // ℹ️ Gets access to environment variables/settings
 // https://www.npmjs.com/package/dotenv

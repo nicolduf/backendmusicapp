@@ -1,4 +1,4 @@
-const User = require('models/User.model')
+const User = require('../models/User.model')
 const bcrypt = require('bcryptjs')
 
 const router = require('express').Router()
@@ -26,11 +26,22 @@ router.post('/login', async (req, res) => {
     const potentialUser = await User.findOne({ username })
     if(potentialUser){
         if (bcrypt.compareSync(password, potentialUser.passwordHash)) {
-            res.status(200).json({ message: "Good password" })
+            //good
+            const userCopy = JSON.parse(JSON.stringify(potentialUser))
+            delete userCopy.passwordHash
+            
+            const authToken = jwt.sign(payload, process.env.TOKEN_SECRET,{ 
+                algorithm: 'Hs256', 
+                expiresIn: "6h"
+            });
+
+            res.status(200).json(userCopy)
         } else {
+            //bad
             res.status(400).json({ message: "Bad password" })
         }
     } else {
+        //no user
         res.status(400).json({ message: "User doesn't exist" })
     }
 })
