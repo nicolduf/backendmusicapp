@@ -1,3 +1,4 @@
+const { isAuthenticated } = require('../middlewares/routeGuard.middleware')
 const User = require('../models/User.model')
 const bcrypt = require('bcryptjs')
 
@@ -24,18 +25,18 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
     const { username, password } = req.body
     const potentialUser = await User.findOne({ username })
-    if(potentialUser){
+    if(potentialUser) {
         if (bcrypt.compareSync(password, potentialUser.passwordHash)) {
             //good
-            const userCopy = JSON.parse(JSON.stringify(potentialUser))
-            delete userCopy.passwordHash
+            // const userCopy = JSON.parse(JSON.stringify(potentialUser))
+            // delete userCopy.passwordHash
             
-            const authToken = jwt.sign(payload, process.env.TOKEN_SECRET,{ 
-                algorithm: 'Hs256', 
+            const authToken = jwt.sign({ userId: potentialUser._id }, process.env.TOKEN_SECRET, { 
+                algorithm: 'HS256', 
                 expiresIn: "6h"
             });
 
-            res.status(200).json(userCopy)
+            res.status(200).json({ token: authToken })
         } else {
             //bad
             res.status(400).json({ message: "Bad password" })
@@ -44,6 +45,12 @@ router.post('/login', async (req, res) => {
         //no user
         res.status(400).json({ message: "User doesn't exist" })
     }
+})
+
+router.get('/verify', isAuthenticated, (req, res) => {
+    console.log(req.payload)
+    res.json(req.payload)
+
 })
 
 module.exports = router
