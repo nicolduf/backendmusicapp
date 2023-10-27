@@ -14,7 +14,6 @@ app.use("/api", indexRoutes);
 const authRoutes = require('./routes/auth.routes')
 app.use('/auth', authRoutes)
 
-// ℹ️ Gets access to environment variables/settings
-// https://www.npmjs.com/package/dotenv
+require('./error-handling')(app)
 
 module.exports = app;
