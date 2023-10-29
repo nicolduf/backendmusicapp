@@ -38,6 +38,6 @@ router.post("api/users/favourites", async (req, res) => {
   } catch (error) {
     response.status(500).json({ error });
   }
-})
+});
 
 module.exports = router;
