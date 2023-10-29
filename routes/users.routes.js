@@ -32,9 +32,17 @@ router.get("/api/users/:_id", async (req, res) => {
   }
 });
 
-router.post("api/users/favourites", async (req, res) => {
+router.post("api/users/favouriteSongs", async (req, res) => {
   try {
-    const newFavourite = await Favourite.create(req.body);
+    const newFavouriteSong = await FavouriteSong.create(req.body);
+  } catch (error) {
+    response.status(500).json({ error });
+  }
+});
+
+router.post("api/users/favouriteArtists", async (req, res) => {
+  try {
+    const newFavouriteArtist = await FavouriteArtist.create(req.body);
   } catch (error) {
     response.status(500).json({ error });
   }
