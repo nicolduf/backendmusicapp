@@ -10,11 +10,15 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
-    passwordHash: { type: String, required: true },
+    passwordHash: { 
+      type: String, 
+      required: true },
   },
 
   {
-    timestamps: true,
+    image: {type: String, default: "https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"},
+    favouriteSongs: [String],
+    favouriteArtists: [Strings]
   }
 );
 

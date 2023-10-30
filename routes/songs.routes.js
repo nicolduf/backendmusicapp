@@ -16,18 +16,20 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:_id ", async (request, response) => {
+router.get("/:_id", async (request, response) => {
   const { _id } = request.params;
+  console.log(_id)
 
   if (mongoose.isValidObjectId(_id)) {
     try {
-      const oneSong = await User.findById(_id);
+      const oneSong = await Song.findById(_id);
       if (oneSong) {
         response.status(200).json(oneSong);
       } else {
-        response.status(404).json({ message: "User not found" });
+        response.status(404).json({ message: "Song not found" });
       }
     } catch (error) {
+      console.log(error)
       response.status(500).json({ error: error.message });
     }
   } else {

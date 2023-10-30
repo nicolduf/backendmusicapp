@@ -6,6 +6,9 @@ const app = express();
 
 require("./config")(app);
 
+const usersRoutes = require("./routes/users.routes");
+app.use("/api/users", usersRoutes);
+
 const songsRoutes = require("./routes/songs.routes");
 app.use("/api/songs", songsRoutes);
 
