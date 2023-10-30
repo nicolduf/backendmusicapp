@@ -3,17 +3,20 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 const User = require("../models/User.model");
+const Song = require("../models/Song.model");
 
-router.get("/api/songs", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const allSongs = await Song.find();
-    res.status(200).json(allUsers);
+    const newSong = await Song.find();
+    console.log(newSong);
+    res.status(201).json(newSong);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
+    res.status(500).json({ error });
   }
 });
 
-router.get("/api/songs/:_id", async (request, response) => {
+router.get("/:_id ", async (request, response) => {
   const { _id } = request.params;
 
   if (mongoose.isValidObjectId(_id)) {

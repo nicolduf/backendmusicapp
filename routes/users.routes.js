@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 const User = require("../models/User.model");
 
-router.get("/api/users", async (req, res) => {
+router.get("/users", async (req, res) => {
   try {
     const allUsers = await User.find();
     res.status(200).json(allUsers);
@@ -13,7 +13,7 @@ router.get("/api/users", async (req, res) => {
   }
 });
 
-router.get("/api/users/:_id", async (req, res) => {
+router.get("/users/:_id", async (req, res) => {
   const { _id } = req.params;
 
   if (mongoose.isValidObjectId(_id)) {
@@ -32,7 +32,7 @@ router.get("/api/users/:_id", async (req, res) => {
   }
 });
 
-router.post("api/users/favouriteSongs", async (req, res) => {
+router.post("/api/users/favouriteSongs", async (req, res) => {
   try {
     const newFavouriteSong = await FavouriteSong.create(req.body);
   } catch (error) {
@@ -40,7 +40,7 @@ router.post("api/users/favouriteSongs", async (req, res) => {
   }
 });
 
-router.post("api/users/favouriteArtists", async (req, res) => {
+router.post("/api/users/favouriteArtists", async (req, res) => {
   try {
     const newFavouriteArtist = await FavouriteArtist.create(req.body);
   } catch (error) {
