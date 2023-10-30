@@ -19,7 +19,7 @@ const userSchema = new Schema(
     image: {type: String, default: "https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"},
     location: String,
     favouriteSongs: [String],
-    favouriteArtists: [Strings]
+    favouriteArtists: [String]
   }
 );
 
