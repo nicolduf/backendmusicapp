@@ -2,38 +2,109 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 
-const User = require("../models/User.model");
 const Song = require("../models/Song.model");
 
+// GET all songs
 router.get("/", async (req, res) => {
   try {
-    const newSong = await Song.find();
-    console.log(newSong);
-    res.status(201).json(newSong);
+    const songs = await Song.find();
+    res.status(200).json(songs);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error });
   }
 });
 
-router.get("/:_id", async (request, response) => {
-  const { _id } = request.params;
-  console.log(_id)
+// GET
+router.get("/:_id", async (req, res) => {
+  const { _id } = req.params;
 
   if (mongoose.isValidObjectId(_id)) {
     try {
-      const oneSong = await Song.findById(_id);
-      if (oneSong) {
-        response.status(200).json(oneSong);
+      const song = await Song.findById(_id);
+      if (song) {
+        res.status(200).json(song);
       } else {
-        response.status(404).json({ message: "Song not found" });
+        res.status(404).json({ message: "Song not found" });
       }
     } catch (error) {
-      console.log(error)
-      response.status(500).json({ error: error.message });
+      console.error(error);
+      res.status(500).json({ error: error.message });
     }
   } else {
-    response.status(400).json({ message: "Invalid ID format" });
+    res.status(400).json({ message: "Invalid ID format" });
+  }
+});
+
+// POST
+router.post('/', async (req, res) => {
+  const { title, artist, album, genre, label, released, image } = req.body;
+
+  if (!title || !artist) {
+    return res.status(400).json({ error: 'Title and artist are required' });
+  }
+
+  try {
+    const newSong = new Song({
+      title,
+      artist,
+      album,
+      genre,
+      label,
+      released,
+      image,
+    });
+
+    await newSong.save();
+
+    res.status(201).json(newSong);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE
+router.delete("/:_id", async (req, res) => {
+  const { _id } = req.params;
+
+  if (mongoose.isValidObjectId(_id)) {
+    try {
+      const deletedSong = await Song.findByIdAndDelete(_id);
+      if (deletedSong) {
+        res.status(200).json({ message: "Song deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Song not found" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    res.status(400).json({ message: "Invalid ID format" });
+  }
+});
+
+// UPDATE
+router.put("/:_id", async (req, res) => {
+  const { _id } = req.params;
+
+  if (mongoose.isValidObjectId(_id)) {
+    try {
+      const updatedSongData = req.body;
+      const updatedSong = await Song.findByIdAndUpdate(_id, updatedSongData, { new: true });
+
+      if (updatedSong) {
+        res.status(200).json(updatedSong);
+      } else {
+        res.status(404).json({ message: "Song not found" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    res.status(400).json({ message: "Invalid ID format" });
   }
 });
 
