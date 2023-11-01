@@ -18,7 +18,10 @@ router.get("/:_id", async (req, res) => {
 
   if (mongoose.isValidObjectId(_id)) {
     try {
-      const oneUser = await User.findById(_id);
+      const oneUser = await User.findById(_id)
+        .populate('favouriteSongs') // Populate the favoriteSongs array with song documents
+        .populate('favouriteArtists'); // Populate the favoriteArtists array with artist documents
+
       if (oneUser) {
         res.status(200).json(oneUser);
       } else {
@@ -60,10 +63,37 @@ router.post('/add-to-favourites/:userId/:songId', async (req, res) => {
   }
 });
 
-// Update a user's profile
+router.post('/add-artist-to-favourites/:userId/:artistId', async (req, res) => {
+  const { userId, artistId } = req.params;
+
+  if (mongoose.isValidObjectId(userId) && mongoose.isValidObjectId(artistId)) {
+    try {
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      if (!user.favouriteArtists.includes(artistId)) {
+        user.favouriteArtists.push(artistId);
+        await user.save();
+
+        return res.status(200).json({ message: 'Artist added to favorites' });
+      }
+
+      return res.status(200).json({ message: 'Artist is already in favorites' });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message });
+    }
+  } else {
+    return res.status(400).json({ message: 'Invalid ID format' });
+  }
+});
+
 router.put("/:userId", async (req, res) => {
   const { userId } = req.params;
-  const updatedUserData = req.body; 
+  const updatedUserData = req.body;
 
   try {
     const user = await User.findByIdAndUpdate(userId, updatedUserData, { new: true });
