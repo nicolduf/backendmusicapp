@@ -3,6 +3,51 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 const User = require("../models/User.model");
+const Song = require("../models/Song.model");
+const Artist = require("../models/Artist.model")
+
+// Define a route to retrieve song profiles by songId
+router.get("/song/:songId", async (req, res) => {
+  const { songId } = req.params;
+
+  if (mongoose.isValidObjectId(songId)) {
+    try {
+      const song = await Song.findById(songId);
+
+      if (song) {
+        res.status(200).json(song);
+      } else {
+        res.status(404).json({ message: "Song not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    res.status(400).json({ message: "Invalid ID format" });
+  }
+});
+
+router.get("/artist/:artistId", async (req, res) => {
+  const { artistId } = req.params;
+
+  if (mongoose.isValidObjectId(artistId)) {
+    try {
+      const artist = await Artist.findById(artistId);
+
+      if (artist) {
+        res.status(200).json(artist);
+      } else {
+        res.status(404).json({ message: "Artist not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    res.status(400).json({ message: "Invalid ID format" });
+  }
+});
+
+// Existing user routes
 
 router.get("/", async (req, res) => {
   try {
@@ -14,13 +59,14 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:_id", async (req, res) => {
+  // Existing user profile route
   const { _id } = req.params;
 
   if (mongoose.isValidObjectId(_id)) {
     try {
       const oneUser = await User.findById(_id)
-        .populate('favouriteSongs') // Populate the favoriteSongs array with song documents
-        .populate('favouriteArtists'); // Populate the favoriteArtists array with artist documents
+        .populate('favouriteSongs') 
+        .populate('favouriteArtists');
 
       if (oneUser) {
         res.status(200).json(oneUser);
@@ -36,6 +82,7 @@ router.get("/:_id", async (req, res) => {
 });
 
 router.post('/add-to-favourites/:userId/:songId', async (req, res) => {
+  // Existing add song to favorites route
   const { userId, songId } = req.params;
 
   if (mongoose.isValidObjectId(userId) && mongoose.isValidObjectId(songId)) {
@@ -64,6 +111,7 @@ router.post('/add-to-favourites/:userId/:songId', async (req, res) => {
 });
 
 router.post('/add-artist-to-favourites/:userId/:artistId', async (req, res) => {
+  // Existing add artist to favorites route
   const { userId, artistId } = req.params;
 
   if (mongoose.isValidObjectId(userId) && mongoose.isValidObjectId(artistId)) {
@@ -92,6 +140,7 @@ router.post('/add-artist-to-favourites/:userId/:artistId', async (req, res) => {
 });
 
 router.put("/:userId", async (req, res) => {
+  // Existing update user data route
   const { userId } = req.params;
   const updatedUserData = req.body;
 
