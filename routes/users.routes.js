@@ -1,15 +1,12 @@
-// Import necessary modules and middleware
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const multer = require('multer');
 
-// Import your data models
 const User = require("../models/User.model");
 const Song = require("../models/Song.model");
 const Artist = require("../models/Artist.model");
 
-// Multer storage configuration
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -163,14 +160,12 @@ router.put("/:userId", upload.single('image'), async (req, res) => {
 
     // Update the user's profile picture if an image is provided
     if (imageFile) {
-      user.image = imageFile.buffer; // Save the image buffer
+      user.image = imageFile.buffer;
     }
 
-    // Update other user data
     user.username = updatedUserData.username;
     user.location = updatedUserData.location;
 
-    // Save the user's data
     await user.save();
 
     return res.status(200).json(user);
