@@ -1,12 +1,19 @@
+// Import necessary modules and middleware
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const multer = require('multer');
 
+// Import your data models
 const User = require("../models/User.model");
 const Song = require("../models/Song.model");
-const Artist = require("../models/Artist.model")
+const Artist = require("../models/Artist.model");
 
-// Define a route to retrieve song profiles by songId
+// Multer storage configuration
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+// Endpoint to retrieve song profiles by songId
 router.get("/song/:songId", async (req, res) => {
   const { songId } = req.params;
 
@@ -27,6 +34,7 @@ router.get("/song/:songId", async (req, res) => {
   }
 });
 
+// Endpoint to retrieve artist profiles by artistId
 router.get("/artist/:artistId", async (req, res) => {
   const { artistId } = req.params;
 
@@ -49,6 +57,7 @@ router.get("/artist/:artistId", async (req, res) => {
 
 // Existing user routes
 
+// Get all users
 router.get("/", async (req, res) => {
   try {
     const allUsers = await User.find();
@@ -58,8 +67,8 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Get user profile by userId
 router.get("/:_id", async (req, res) => {
-  // Existing user profile route
   const { _id } = req.params;
 
   if (mongoose.isValidObjectId(_id)) {
@@ -81,8 +90,8 @@ router.get("/:_id", async (req, res) => {
   }
 });
 
+// Add a song to a user's favorites
 router.post('/add-to-favourites/:userId/:songId', async (req, res) => {
-  // Existing add song to favorites route
   const { userId, songId } = req.params;
 
   if (mongoose.isValidObjectId(userId) && mongoose.isValidObjectId(songId)) {
@@ -110,8 +119,8 @@ router.post('/add-to-favourites/:userId/:songId', async (req, res) => {
   }
 });
 
+// Add an artist to a user's favorites
 router.post('/add-artist-to-favourites/:userId/:artistId', async (req, res) => {
-  // Existing add artist to favorites route
   const { userId, artistId } = req.params;
 
   if (mongoose.isValidObjectId(userId) && mongoose.isValidObjectId(artistId)) {
@@ -139,17 +148,30 @@ router.post('/add-artist-to-favourites/:userId/:artistId', async (req, res) => {
   }
 });
 
-router.put("/:userId", async (req, res) => {
-  // Existing update user data route
+// Update user data, including the profile picture
+router.put("/:userId", upload.single('image'), async (req, res) => {
   const { userId } = req.params;
   const updatedUserData = req.body;
+  const imageFile = req.file;
 
   try {
-    const user = await User.findByIdAndUpdate(userId, updatedUserData, { new: true });
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    // Update the user's profile picture if an image is provided
+    if (imageFile) {
+      user.image = imageFile.buffer; // Save the image buffer
+    }
+
+    // Update other user data
+    user.username = updatedUserData.username;
+    user.location = updatedUserData.location;
+
+    // Save the user's data
+    await user.save();
 
     return res.status(200).json(user);
   } catch (error) {
