@@ -1,3 +1,5 @@
+// routes/songs.js
+
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -8,7 +10,15 @@ const Song = require("../models/Song.model");
 router.get("/", async (req, res) => {
   try {
     const songs = await Song.find();
-    res.status(200).json(songs);
+
+    if (songs.length === 0) {
+      return res.status(404).json({ message: "No songs found" });
+    }
+
+    const randomSong = songs[Math.floor(Math.random() * songs.length)];
+    const songTitle = randomSong.title;
+
+    res.status(200).json({ songs, songOfTheDayTitle: songTitle });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error });
@@ -37,11 +47,11 @@ router.get("/:_id", async (req, res) => {
 });
 
 // POST
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   const { title, artist, album, genre, label, released, image } = req.body;
 
   if (!title || !artist) {
-    return res.status(400).json({ error: 'Title and artist are required' });
+    return res.status(400).json({ error: "Title and artist are required" });
   }
 
   try {
@@ -92,7 +102,9 @@ router.put("/:_id", async (req, res) => {
   if (mongoose.isValidObjectId(_id)) {
     try {
       const updatedSongData = req.body;
-      const updatedSong = await Song.findByIdAndUpdate(_id, updatedSongData, { new: true });
+      const updatedSong = await Song.findByIdAndUpdate(_id, updatedSongData, {
+        new: true,
+      });
 
       if (updatedSong) {
         res.status(200).json(updatedSong);
