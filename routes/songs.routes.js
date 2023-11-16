@@ -1,5 +1,3 @@
-// routes/songs.js
-
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -10,7 +8,7 @@ const Song = require("../models/Song.model");
 router.get("/", async (req, res) => {
   try {
     const songs = await Song.find();
-
+    
     if (songs.length === 0) {
       return res.status(404).json({ message: "No songs found" });
     }
@@ -74,18 +72,21 @@ router.post("/", async (req, res) => {
   }
 });
 
-// DELETE
-router.delete("/:_id", async (req, res) => {
-  const { _id } = req.params;
+router.delete("/remove-from-favourites/:userId/:songId", async (req, res) => {
+  const { userId, songId } = req.params;
 
-  if (mongoose.isValidObjectId(_id)) {
+  if (mongoose.isValidObjectId(userId) && mongoose.isValidObjectId(songId)) {
     try {
-      const deletedSong = await Song.findByIdAndDelete(_id);
-      if (deletedSong) {
-        res.status(200).json({ message: "Song deleted successfully" });
-      } else {
-        res.status(404).json({ message: "Song not found" });
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
       }
+
+      user.favouriteSongs.pull(songId);
+      await user.save();
+
+      res.status(200).json({ message: "Removed from favorites successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: error.message });

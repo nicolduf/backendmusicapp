@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const multer = require('multer');
+const multer = require("multer");
 
 const User = require("../models/User.model");
 const Song = require("../models/Song.model");
@@ -71,8 +71,8 @@ router.get("/:_id", async (req, res) => {
   if (mongoose.isValidObjectId(_id)) {
     try {
       const oneUser = await User.findById(_id)
-        .populate('favouriteSongs') 
-        .populate('favouriteArtists');
+        .populate("favouriteSongs")
+        .populate("favouriteArtists");
 
       if (oneUser) {
         res.status(200).json(oneUser);
@@ -88,7 +88,7 @@ router.get("/:_id", async (req, res) => {
 });
 
 // Add a song to a user's favorites
-router.post('/add-to-favourites/:userId/:songId', async (req, res) => {
+router.post("/add-to-favourites/:userId/:songId", async (req, res) => {
   const { userId, songId } = req.params;
 
   if (mongoose.isValidObjectId(userId) && mongoose.isValidObjectId(songId)) {
@@ -96,28 +96,28 @@ router.post('/add-to-favourites/:userId/:songId', async (req, res) => {
       const user = await User.findById(userId);
 
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: "User not found" });
       }
 
       if (!user.favouriteSongs.includes(songId)) {
         user.favouriteSongs.push(songId);
         await user.save();
 
-        return res.status(200).json({ message: 'Song added to favorites' });
+        return res.status(200).json({ message: "Song added to favorites" });
       }
 
-      return res.status(200).json({ message: 'Song is already in favorites' });
+      return res.status(200).json({ message: "Song is already in favorites" });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: error.message });
     }
   } else {
-    return res.status(400).json({ message: 'Invalid ID format' });
+    return res.status(400).json({ message: "Invalid ID format" });
   }
 });
 
 // Add an artist to a user's favorites
-router.post('/add-artist-to-favourites/:userId/:artistId', async (req, res) => {
+router.post("/add-artist-to-favourites/:userId/:artistId", async (req, res) => {
   const { userId, artistId } = req.params;
 
   if (mongoose.isValidObjectId(userId) && mongoose.isValidObjectId(artistId)) {
@@ -125,28 +125,30 @@ router.post('/add-artist-to-favourites/:userId/:artistId', async (req, res) => {
       const user = await User.findById(userId);
 
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: "User not found" });
       }
 
       if (!user.favouriteArtists.includes(artistId)) {
         user.favouriteArtists.push(artistId);
         await user.save();
 
-        return res.status(200).json({ message: 'Artist added to favorites' });
+        return res.status(200).json({ message: "Artist added to favorites" });
       }
 
-      return res.status(200).json({ message: 'Artist is already in favorites' });
+      return res
+        .status(200)
+        .json({ message: "Artist is already in favorites" });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: error.message });
     }
   } else {
-    return res.status(400).json({ message: 'Invalid ID format' });
+    return res.status(400).json({ message: "Invalid ID format" });
   }
 });
 
 // Update user data, including the profile picture
-router.put("/:userId", upload.single('image'), async (req, res) => {
+router.put("/:userId", upload.single("image"), async (req, res) => {
   const { userId } = req.params;
   const updatedUserData = req.body;
   const imageFile = req.file;
@@ -174,5 +176,71 @@ router.put("/:userId", upload.single('image'), async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// Remove a song from a user's favorites
+router.delete("/remove-from-favourites/:userId/:songId", async (req, res) => {
+  const { userId, songId } = req.params;
+
+  if (mongoose.isValidObjectId(userId) && mongoose.isValidObjectId(songId)) {
+    try {
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.favouriteSongs.includes(songId)) {
+        user.favouriteSongs.pull(songId);
+        await user.save();
+
+        return res.status(200).json({ message: "Song removed from favorites" });
+      }
+
+      return res.status(200).json({ message: "Song is not in favorites" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message });
+    }
+  } else {
+    return res.status(400).json({ message: "Invalid ID format" });
+  }
+});
+
+// Remove an artist from a user's favorites
+router.delete(
+  "/remove-artist-from-favourites/:userId/:artistId",
+  async (req, res) => {
+    const { userId, artistId } = req.params;
+
+    if (
+      mongoose.isValidObjectId(userId) &&
+      mongoose.isValidObjectId(artistId)
+    ) {
+      try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.favouriteArtists.includes(artistId)) {
+          user.favouriteArtists.pull(artistId);
+          await user.save();
+
+          return res
+            .status(200)
+            .json({ message: "Artist removed from favorites" });
+        }
+
+        return res.status(200).json({ message: "Artist is not in favorites" });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error.message });
+      }
+    } else {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+  }
+);
 
 module.exports = router;
